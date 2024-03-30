@@ -8,7 +8,6 @@ import ru.practicum.mapper.StatMapper;
 import ru.practicum.repository.StatRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,7 +33,7 @@ public class StatServiceImpl implements StatService {
         } else {
             stats = statRepository.getStatsWithUniqueAndUris(start, end, uris);
         }
-        
+
         return stats;
     }
 }
