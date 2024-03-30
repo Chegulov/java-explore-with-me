@@ -34,7 +34,7 @@ public class StatServiceImpl implements StatService {
         } else {
             stats = statRepository.getStatsWithUniqueAndUris(start, end, uris);
         }
-
+        
         return stats;
     }
 }
