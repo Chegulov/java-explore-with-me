@@ -1,9 +1,6 @@
 package ru.practicum.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.models.enums.State;
 
 import javax.persistence.*;
@@ -11,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "requests")
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
