@@ -55,7 +55,7 @@ public class Event {
     private String description;
 
     @Column(name = "participant_limit", nullable = false)
-    public int participantLimit;
+    public Long participantLimit;
 
     @Column(name = "published_on", nullable = false)
     private LocalDateTime publishedOn;

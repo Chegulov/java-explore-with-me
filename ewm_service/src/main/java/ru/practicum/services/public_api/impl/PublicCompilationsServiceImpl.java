@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.compilation.CompilationDto;
-import ru.practicum.exceptions.DataNotFoundException;
 import ru.practicum.helper.Finder;
 import ru.practicum.mappers.CompilationMapper;
 import ru.practicum.models.Compilation;

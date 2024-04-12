@@ -35,7 +35,7 @@ public class Finder {
                 .orElseThrow(() -> new DataNotFoundException("Запрос с id=" + requestId + " не найден."));
     }
 
-    public User finduserById(Long userId) {
+    public User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("Пользователь с id=" + userId + " не найден."));
     }
