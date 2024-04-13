@@ -8,8 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -26,11 +24,6 @@ public class StatsClient{
         this.rest = new RestTemplate();
         this.serverUrl = serverUrl;
     }
-
-//    public StatsClient() {
-//        this.rest = new RestTemplate();
-//        this.serverUrl = "http://localhost:9090";
-//    }
 
     public void create(EndpointHit endpointHit) {
         rest.exchange(serverUrl + API_PREFIX_HIT,
