@@ -34,7 +34,7 @@ public class PrivateRequestsServiceImpl implements PrivateRequestsService {
 
         List<Request> requests = requestRepository.findAllByRequester_Id(requesterId);
 
-        if(requests.isEmpty()) {
+        if (requests.isEmpty()) {
             return new ArrayList<>();
         }
 

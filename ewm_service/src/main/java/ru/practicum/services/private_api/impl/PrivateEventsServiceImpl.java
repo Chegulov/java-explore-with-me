@@ -70,7 +70,7 @@ public class PrivateEventsServiceImpl implements PrivateEventsService {
         Event eventToUpdate = finder.findEventById(eventId);
         LocalDateTime newEventDate = updateEventUserRequest.getEventDate();
 
-        if(newEventDate != null) {
+        if (newEventDate != null) {
             checkDate(newEventDate);
         }
 

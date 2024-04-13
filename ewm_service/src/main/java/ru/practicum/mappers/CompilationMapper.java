@@ -15,6 +15,7 @@ public class CompilationMapper {
                 .pinned(newCompilationDto.getPinned())
                 .build();
     }
+
     public CompilationDto mapToCompilationDto(Compilation compilation) {
         return CompilationDto.builder()
                 .id(compilation.getId())
