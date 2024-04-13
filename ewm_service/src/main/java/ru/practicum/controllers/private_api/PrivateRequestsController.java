@@ -1,6 +1,7 @@
 package ru.practicum.controllers.private_api;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.exceptions.InvalidRequestException;
@@ -20,6 +21,7 @@ public class PrivateRequestsController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto create(@PathVariable Long userId,
                                           @RequestParam(required = false) Long eventId) {
         if (eventId == null) {

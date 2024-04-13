@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.UpdateEventAdminRequest;
+import ru.practicum.exceptions.InvalidRequestException;
 import ru.practicum.exceptions.WrongConditionException;
 import ru.practicum.helper.Finder;
 import ru.practicum.helper.UtilsUpdateWithoutNull;
@@ -30,8 +31,9 @@ public class AdminEventsServiceImpl implements AdminEventsService {
     private final Finder finder;
 
     @Override
-    public List<EventFullDto> getEvents(List<Long> initiators, List<String> states, List<Long> categories,
+    public List<EventFullDto> getEvents(List<Long> initiators, List<State> states, List<Long> categories,
                                         LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable) {
+
         List<Event> events = eventRepository.getEventsByParameters(initiators, states, categories,
                 rangeStart, rangeEnd, pageable).getContent();
 
@@ -50,21 +52,23 @@ public class AdminEventsServiceImpl implements AdminEventsService {
 
         if (newEventDate != null) {
             if (newEventDate.isBefore(LocalDateTime.now())) {
-                throw new WrongConditionException("Дата события не может быть ранее текущего момента");
+                throw new InvalidRequestException("Дата события не может быть ранее текущего момента");
             }
 
-            if (newEventDate.isBefore(eventToUpdate.getPublishedOn().minusHours(1))) {
-                throw new WrongConditionException("Дата начала изменяемого события должна быть не ранее чем за час от даты публикации.");
+            LocalDateTime publishDate = eventToUpdate.getPublishedOn();
+
+            if (newEventDate.isBefore(publishDate.minusHours(1))) {
+                throw new InvalidRequestException("Дата начала изменяемого события должна быть не ранее чем за час от даты публикации.");
             }
         }
 
-        if (updateEventAdminRequest.getAdminStateAction() != null) {
-            if (!eventToUpdate.getState().equals(State.PENDING)) {
+        if (updateEventAdminRequest.getStateAction() != null) {
+            if (eventToUpdate.getState() != State.PENDING) {
                 throw new WrongConditionException("Событие можно публиковать, только если оно в состоянии ожидания публикации. " +
                         "Текущий статус :" + eventToUpdate.getState());
             }
 
-            if (updateEventAdminRequest.getAdminStateAction() == AdminStateAction.PUBLISH_EVENT) {
+            if (updateEventAdminRequest.getStateAction() == AdminStateAction.PUBLISH_EVENT) {
                 eventToUpdate.setState(State.PUBLISHED);
                 eventToUpdate.setPublishedOn(LocalDateTime.now());
             } else {
@@ -78,6 +82,7 @@ public class AdminEventsServiceImpl implements AdminEventsService {
         }
 
         UtilsUpdateWithoutNull.copyProperties(updateEventAdminRequest, eventToUpdate);
-        return EventMapper.mapToEventFullDto(eventToUpdate);
+
+        return EventMapper.mapToEventFullDto(eventRepository.save(eventToUpdate));
     }
 }

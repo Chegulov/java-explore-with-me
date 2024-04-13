@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.Constants;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.UpdateEventAdminRequest;
+import ru.practicum.models.enums.State;
 import ru.practicum.services.admin_api.AdminEventsService;
 
 import javax.validation.Valid;
@@ -22,7 +23,7 @@ public class AdminEventsController {
 
     @GetMapping
     public List<EventFullDto> getEvents(@RequestParam(required = false) List<Long> initiators,
-                                        @RequestParam(required = false) List<String> states,
+                                        @RequestParam(required = false) List<State> states,
                                         @RequestParam(required = false) List<Long> categories,
                                         @RequestParam(required = false)
                                         @DateTimeFormat(pattern = Constants.pattern)
@@ -39,7 +40,7 @@ public class AdminEventsController {
 
     @PatchMapping("/{eventId}")
     public EventFullDto updateEvent(@PathVariable Long eventId,
-                                    @RequestBody @Valid UpdateEventAdminRequest updateEventAdminRequest) {
+                                    @Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequest) {
         return adminEventsService.updateEvent(eventId, updateEventAdminRequest);
     }
 }

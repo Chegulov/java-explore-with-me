@@ -25,7 +25,7 @@ public class Compilation {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "event_compilation",
+            name = "events_compilations",
             joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id"))
     private List<Event> events;

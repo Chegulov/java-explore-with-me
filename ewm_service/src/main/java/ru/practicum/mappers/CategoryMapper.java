@@ -19,9 +19,4 @@ public class CategoryMapper {
                 .name(category.getName())
                 .build();
     }
-
-    public Category updateCategory(Category category, CategoryDto categoryDto) {
-        category.setName(category.getName());
-        return category;
-    }
 }

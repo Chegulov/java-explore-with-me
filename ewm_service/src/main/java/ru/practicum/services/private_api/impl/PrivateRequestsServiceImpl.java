@@ -2,6 +2,7 @@ package ru.practicum.services.private_api.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.exceptions.WrongConditionException;
 import ru.practicum.helper.Finder;
@@ -43,8 +44,9 @@ public class PrivateRequestsServiceImpl implements PrivateRequestsService {
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto create(Long requesterId, Long eventId) {
-        if (!requestRepository.findUserEventRequestByEvent(requesterId, eventId).isEmpty()) {
+        if (!requestRepository.findAllByRequesterIdAndEventId(requesterId, eventId).isEmpty()) {
             throw new WrongConditionException("нельзя добавить повторный запрос");
         }
 
@@ -62,6 +64,7 @@ public class PrivateRequestsServiceImpl implements PrivateRequestsService {
             throw new WrongConditionException("инициатор события не может добавить запрос на участие в своём событии");
         }
         User requester = finder.findUserById(requesterId);
+
         Request request = Request.builder()
                 .created(LocalDateTime.now())
                 .requester(requester)

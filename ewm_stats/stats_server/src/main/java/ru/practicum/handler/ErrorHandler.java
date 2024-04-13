@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.Constants;
-import ru.practicum.exceptions.DataNotFoundException;
 import ru.practicum.exceptions.InvalidRequestException;
-import ru.practicum.exceptions.WrongConditionException;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -35,28 +33,6 @@ public class ErrorHandler {
         return new ApiError(HttpStatus.BAD_REQUEST,
                 "Incorrectly made request.",
                 errors,
-                LocalDateTime.now().format(Constants.FORMATTER));
-    }
-
-    @ExceptionHandler(DataNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiError handleDataNotFoundException(DataNotFoundException e) {
-        log.error(e.getMessage());
-        log.error(Arrays.toString(e.getStackTrace()));
-        return new ApiError(HttpStatus.NOT_FOUND,
-                "The required object was not found.",
-                e.getMessage(),
-                LocalDateTime.now().format(Constants.FORMATTER));
-    }
-
-    @ExceptionHandler(WrongConditionException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handleWrongConditionException(WrongConditionException e) {
-        log.error(e.getMessage());
-        log.error(Arrays.toString(e.getStackTrace()));
-        return new ApiError(HttpStatus.CONFLICT,
-                "For the requested operation the conditions are not met",
-                e.getMessage(),
                 LocalDateTime.now().format(Constants.FORMATTER));
     }
 

@@ -24,7 +24,7 @@ public class PublicCompilationsServiceImpl implements PublicCompilationsService 
     public List<CompilationDto> getCompilations(Boolean pinned, Pageable pageable) {
         List<Compilation> compilations;
         if (pinned != null) {
-            compilations = compilationRepository.findAllbyPinned(pinned, pageable).getContent();
+            compilations = compilationRepository.findAllByPinned(pinned, pageable).getContent();
         } else {
             compilations = compilationRepository.findAll(pageable).getContent();
         }

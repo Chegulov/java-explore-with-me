@@ -3,6 +3,7 @@ package ru.practicum.controllers.private_api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
@@ -32,8 +33,9 @@ public class PrivateEventsController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto createEvent(@PathVariable Long userId,
-                                   @Valid @RequestBody NewEventDto newEventDto) {
+                                    @Valid @RequestBody NewEventDto newEventDto) {
         return privateEventsService.createEvent(userId, newEventDto);
     }
 

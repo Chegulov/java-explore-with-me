@@ -53,8 +53,8 @@ public class PrivateEventsServiceImpl implements PrivateEventsService {
         User initiator = finder.findUserById(initiatorId);
         Category category = finder.findCategoryById(newEventDto.getCategory());
         Location location = locationRepository.save(newEventDto.getLocation());
-        Event event = EventMapper.mapToEvent(newEventDto,
-                category, location, initiator, eventDate, State.PENDING, 0L, 0L);
+        Event event = EventMapper.mapToEvent(newEventDto, category, location, initiator, eventDate,
+                State.PENDING, 0L, 0L);
         return EventMapper.mapToEventFullDto(eventRepository.save(event));
     }
 

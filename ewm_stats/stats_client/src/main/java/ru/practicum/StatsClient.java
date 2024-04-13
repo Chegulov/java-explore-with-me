@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -25,18 +27,23 @@ public class StatsClient{
         this.serverUrl = serverUrl;
     }
 
-    public ResponseEntity<EndpointHit> create(EndpointHit endpointHit) {
-        return rest.exchange(serverUrl + API_PREFIX_HIT,
+//    public StatsClient() {
+//        this.rest = new RestTemplate();
+//        this.serverUrl = "http://localhost:9090";
+//    }
+
+    public void create(EndpointHit endpointHit) {
+        rest.exchange(serverUrl + API_PREFIX_HIT,
                 HttpMethod.POST,
                 new HttpEntity<>(endpointHit),
-                EndpointHit.class);
+                Object.class);
     }
 
     public List<ViewStats> readAll(LocalDateTime start, LocalDateTime end, Collection<String> uris, Boolean unique) {
         Map<String, Object> parameters = Map.of(
-                "start", start,
-                "end", end,
-                "uris", uris,
+                "start", start.format(Constants.FORMATTER),
+                "end", end.format(Constants.FORMATTER),
+                "uris", uris.toArray(),
                 "unique", unique
         );
 

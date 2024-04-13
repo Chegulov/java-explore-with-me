@@ -50,8 +50,9 @@ public class PublicEventsServiceImpl implements PublicEventsService {
         }
 
         statsClient.create(EndpointHit.builder()
-                .app(request.getRemoteAddr())
-                .ip(request.getRequestURI())
+                .app("ewm_service")
+                .uri(request.getRequestURI())
+                .ip(request.getRemoteAddr())
                 .timestamp(LocalDateTime.now().format(Constants.FORMATTER))
                 .build());
 
@@ -69,8 +70,9 @@ public class PublicEventsServiceImpl implements PublicEventsService {
         }
 
         statsClient.create(EndpointHit.builder()
-                .app(request.getRemoteAddr())
-                .ip(request.getRequestURI())
+                .app("ewm_service")
+                .uri(request.getRequestURI())
+                .ip(request.getRemoteAddr())
                 .timestamp(LocalDateTime.now().format(Constants.FORMATTER))
                 .build());
 

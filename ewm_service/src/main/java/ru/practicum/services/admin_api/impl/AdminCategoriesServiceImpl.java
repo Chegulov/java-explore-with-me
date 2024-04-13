@@ -6,6 +6,7 @@ import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.category.NewCategoryDto;
 import ru.practicum.exceptions.WrongConditionException;
 import ru.practicum.helper.Finder;
+import ru.practicum.helper.UtilsUpdateWithoutNull;
 import ru.practicum.mappers.CategoryMapper;
 import ru.practicum.models.Category;
 import ru.practicum.repositories.CategoryRepository;
@@ -38,7 +39,7 @@ public class AdminCategoriesServiceImpl implements AdminCategoriesService {
     @Override
     public CategoryDto update(Long catId, CategoryDto categoryDto) {
         Category category = finder.findCategoryById(catId);
-        return CategoryMapper.mapToCategoryDto(
-                categoryRepository.save(CategoryMapper.updateCategory(category, categoryDto)));
+        UtilsUpdateWithoutNull.copyProperties(categoryDto, category);
+        return CategoryMapper.mapToCategoryDto(categoryRepository.save(category));
     }
 }
