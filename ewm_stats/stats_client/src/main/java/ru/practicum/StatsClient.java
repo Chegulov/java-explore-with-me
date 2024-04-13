@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class StatsClient{
+public class StatsClient {
     private final RestTemplate rest;
     private final String serverUrl;
     private static final String API_PREFIX_HIT = "/hit";
