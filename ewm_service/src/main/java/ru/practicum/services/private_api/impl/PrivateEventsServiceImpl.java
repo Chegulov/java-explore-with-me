@@ -10,9 +10,9 @@ import ru.practicum.dto.event.UpdateEventUserRequest;
 import ru.practicum.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.dto.request.ParticipationRequestDto;
+import ru.practicum.exceptions.DataNotFoundException;
 import ru.practicum.exceptions.InvalidRequestException;
 import ru.practicum.exceptions.WrongConditionException;
-import ru.practicum.helper.Finder;
 import ru.practicum.helper.UtilsUpdateWithoutNull;
 import ru.practicum.mappers.EventMapper;
 import ru.practicum.mappers.RequestMapper;
@@ -20,9 +20,7 @@ import ru.practicum.models.*;
 import ru.practicum.models.enums.State;
 import ru.practicum.models.enums.Status;
 import ru.practicum.models.enums.UserStateAction;
-import ru.practicum.repositories.EventRepository;
-import ru.practicum.repositories.LocationRepository;
-import ru.practicum.repositories.RequestRepository;
+import ru.practicum.repositories.*;
 import ru.practicum.services.private_api.PrivateEventsService;
 
 import java.time.LocalDateTime;
@@ -36,11 +34,12 @@ public class PrivateEventsServiceImpl implements PrivateEventsService {
     private final EventRepository eventRepository;
     private final LocationRepository locationRepository;
     private final RequestRepository requestRepository;
-    private final Finder finder;
+    private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public List<EventShortDto> getUserEvets(Long initiatorId, Pageable pageable) {
-        finder.findUserById(initiatorId);
+        findUserById(initiatorId);
         return eventRepository.findAllByInitiator_Id(initiatorId, pageable).stream()
                 .map(EventMapper::mapToEventShortDto)
                 .collect(Collectors.toList());
@@ -50,8 +49,8 @@ public class PrivateEventsServiceImpl implements PrivateEventsService {
     public EventFullDto createEvent(Long initiatorId, NewEventDto newEventDto) {
         LocalDateTime eventDate = newEventDto.getEventDate();
         checkDate(eventDate);
-        User initiator = finder.findUserById(initiatorId);
-        Category category = finder.findCategoryById(newEventDto.getCategory());
+        User initiator = findUserById(initiatorId);
+        Category category = findCategoryById(newEventDto.getCategory());
         Location location = locationRepository.save(newEventDto.getLocation());
         Event event = EventMapper.mapToEvent(newEventDto, category, location, initiator, eventDate,
                 State.PENDING, 0L, 0L);
@@ -60,14 +59,14 @@ public class PrivateEventsServiceImpl implements PrivateEventsService {
 
     @Override
     public EventFullDto getEventById(Long initiatorId, Long eventId) {
-        finder.findUserById(initiatorId);
-        return EventMapper.mapToEventFullDto(finder.findEventById(eventId));
+        findUserById(initiatorId);
+        return EventMapper.mapToEventFullDto(findEventById(eventId));
     }
 
     @Override
     public EventFullDto updateEvent(Long initiatorId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
-        finder.findUserById(initiatorId);
-        Event eventToUpdate = finder.findEventById(eventId);
+        findUserById(initiatorId);
+        Event eventToUpdate = findEventById(eventId);
         LocalDateTime newEventDate = updateEventUserRequest.getEventDate();
 
         if (newEventDate != null) {
@@ -94,7 +93,7 @@ public class PrivateEventsServiceImpl implements PrivateEventsService {
 
     @Override
     public List<ParticipationRequestDto> getEventRequests(Long initiatorId, Long eventId) {
-        finder.findUserById(initiatorId);
+        findUserById(initiatorId);
         List<Request> requests = requestRepository.findAllByEvent_Id(eventId).stream()
                 .filter(request -> request.getEvent().getInitiator().getId().equals(initiatorId))
                 .collect(Collectors.toList());
@@ -109,11 +108,9 @@ public class PrivateEventsServiceImpl implements PrivateEventsService {
     @Override
     public EventRequestStatusUpdateResult updateRequestStatus(Long initiatorId, Long eventId,
                                                               EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
-        finder.findUserById(initiatorId);
-        Event event = finder.findEventById(eventId);
-        List<Request> requestsToUpdate = eventRequestStatusUpdateRequest.getRequestIds().stream()
-                .map(finder::findRequestById)
-                .collect(Collectors.toList());
+        findUserById(initiatorId);
+        Event event = findEventById(eventId);
+        List<Request> requestsToUpdate = requestRepository.findAllByIdIn(eventRequestStatusUpdateRequest.getRequestIds());
 
         if (requestsToUpdate.stream()
                 .anyMatch(request -> !request.getStatus().equals(Status.PENDING))) {
@@ -156,6 +153,21 @@ public class PrivateEventsServiceImpl implements PrivateEventsService {
 
         eventRepository.save(event);
         return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
+    }
+
+    private Event findEventById(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new DataNotFoundException("Событие с id=" + eventId + " не найдено."));
+    }
+
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("Пользователь с id=" + userId + " не найден."));
+    }
+
+    private Category findCategoryById(Long catId) {
+        return categoryRepository.findById(catId)
+                .orElseThrow(() -> new DataNotFoundException("Категория с id=" + catId + " не найдена."));
     }
 
     private void checkDate(LocalDateTime eventDate) {

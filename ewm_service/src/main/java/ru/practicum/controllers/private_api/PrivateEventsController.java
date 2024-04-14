@@ -15,6 +15,7 @@ import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.services.private_api.PrivateEventsService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -25,8 +26,8 @@ public class PrivateEventsController {
 
     @GetMapping
     public List<EventShortDto> getUserEvents(@PathVariable Long userId,
-                                             @RequestParam(defaultValue = "0") Integer from,
-                                             @RequestParam(defaultValue = "10") Integer size) {
+                                             @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                             @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
 
         return privateEventsService.getUserEvets(userId, pageable);

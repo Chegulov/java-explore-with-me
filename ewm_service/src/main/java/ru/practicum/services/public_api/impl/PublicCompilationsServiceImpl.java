@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.compilation.CompilationDto;
-import ru.practicum.helper.Finder;
+import ru.practicum.exceptions.DataNotFoundException;
 import ru.practicum.mappers.CompilationMapper;
 import ru.practicum.models.Compilation;
 import ru.practicum.repositories.CompilationRepository;
@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PublicCompilationsServiceImpl implements PublicCompilationsService {
     private final CompilationRepository compilationRepository;
-    private final Finder finder;
 
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, Pageable pageable) {
@@ -40,6 +39,7 @@ public class PublicCompilationsServiceImpl implements PublicCompilationsService 
 
     @Override
     public CompilationDto getCompilationById(Long compId) {
-        return CompilationMapper.mapToCompilationDto(finder.findCompilationById(compId));
+        return CompilationMapper.mapToCompilationDto(compilationRepository.findById(compId)
+                .orElseThrow(() -> new DataNotFoundException("Компиляция с id=" + compId + " не найдена.")));
     }
 }

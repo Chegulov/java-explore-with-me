@@ -12,9 +12,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     List<Request> findAllByRequester_Id(Long requesterId);
 
-//    @Query("SELECT r FROM Request r " +
-//            "WHERE requester.id = ?1 " +
-//            "AND event.id = ?2")
     List<Request> findAllByRequesterIdAndEventId(Long requesterId, Long eventId);
 
+    List<Request> findAllByIdIn(List<Long> requestIds);
 }

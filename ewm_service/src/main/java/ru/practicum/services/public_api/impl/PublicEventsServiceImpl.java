@@ -1,7 +1,9 @@
 package ru.practicum.services.public_api.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.Constants;
 import ru.practicum.EndpointHit;
@@ -11,9 +13,9 @@ import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.exceptions.DataNotFoundException;
 import ru.practicum.exceptions.InvalidRequestException;
-import ru.practicum.helper.Finder;
 import ru.practicum.mappers.EventMapper;
 import ru.practicum.models.Event;
+import ru.practicum.models.UserEventsParams;
 import ru.practicum.models.enums.State;
 import ru.practicum.repositories.EventRepository;
 import ru.practicum.services.public_api.PublicEventsService;
@@ -27,19 +29,35 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PublicEventsServiceImpl implements PublicEventsService {
+    private static final LocalDateTime PAST = LocalDateTime.now().minusYears(300);
+
     private final EventRepository eventRepository;
-    private final Finder finder;
     private final StatsClient statsClient;
 
     @Override
-    public List<EventShortDto> getEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, HttpServletRequest request, Pageable pageable) {
-        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
-            throw new InvalidRequestException("указа некорректный диапазон дат");
+    public List<EventShortDto> getEvents(UserEventsParams userEventsParams, Integer from, Integer size) {
+        Pageable pageable = PageRequest.of(from / size, size);
+
+        if (userEventsParams.getSort() != null) {
+            if (userEventsParams.getSort().equals("EVENT_DATE")) {
+                pageable = PageRequest.of(from / size, size, Sort.by("eventDate"));
+            } else if (userEventsParams.getSort().equals("VIEWS")) {
+                pageable = PageRequest.of(from / size, size, Sort.by("views"));
+            } else {
+                throw new InvalidRequestException("Параметр sort задан неверно");
+            }
         }
 
-        List<Event> events = eventRepository.getEventsByUserParameters(text, categories, paid, rangeStart, rangeEnd, pageable).getContent();
+        if (userEventsParams.getRangeStart() != null && userEventsParams.getRangeEnd() != null
+                && userEventsParams.getRangeStart().isAfter(userEventsParams.getRangeEnd())) {
+            throw new InvalidRequestException("указан некорректный диапазон дат");
+        }
 
-        if (onlyAvailable) {
+        List<Event> events = eventRepository.getEventsByUserParameters(userEventsParams.getText(),
+                userEventsParams.getCategories(), userEventsParams.getPaid(), userEventsParams.getRangeStart(),
+                userEventsParams.getRangeEnd(), pageable).getContent();
+
+        if (userEventsParams.getOnlyAvailable()) {
             events = events.stream()
                     .filter(event -> event.getConfirmedRequests() < event.getParticipantLimit())
                     .collect(Collectors.toList());
@@ -51,8 +69,8 @@ public class PublicEventsServiceImpl implements PublicEventsService {
 
         statsClient.create(EndpointHit.builder()
                 .app("ewm_service")
-                .uri(request.getRequestURI())
-                .ip(request.getRemoteAddr())
+                .uri(userEventsParams.getRequest().getRequestURI())
+                .ip(userEventsParams.getRequest().getRemoteAddr())
                 .timestamp(LocalDateTime.now().format(Constants.FORMATTER))
                 .build());
 
@@ -63,7 +81,8 @@ public class PublicEventsServiceImpl implements PublicEventsService {
 
     @Override
     public EventFullDto getEventById(Long id, HttpServletRequest request) {
-        Event event = finder.findEventById(id);
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Событие с id=" + id + " не найдено."));
 
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new DataNotFoundException("Событие должно быть опубликовано");
@@ -84,7 +103,7 @@ public class PublicEventsServiceImpl implements PublicEventsService {
 
     private Long countViews(HttpServletRequest request) {
         List<ViewStats> stats = statsClient.readAll(
-                LocalDateTime.now().minusYears(300),
+                PAST,
                 LocalDateTime.now().plusHours(1),
                 List.of(request.getRequestURI()),
                 true);

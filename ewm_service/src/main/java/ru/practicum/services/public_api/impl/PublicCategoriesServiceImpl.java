@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.category.CategoryDto;
-import ru.practicum.helper.Finder;
+import ru.practicum.exceptions.DataNotFoundException;
 import ru.practicum.mappers.CategoryMapper;
 import ru.practicum.models.Category;
 import ru.practicum.repositories.CategoryRepository;
@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PublicCategoriesServiceImpl implements PublicCategoriesService {
     private final CategoryRepository categoryRepository;
-    private final Finder finder;
 
     @Override
     public List<CategoryDto> getCategories(Pageable pageable) {
@@ -36,6 +35,7 @@ public class PublicCategoriesServiceImpl implements PublicCategoriesService {
 
     @Override
     public CategoryDto getCategoryById(Long catId) {
-        return CategoryMapper.mapToCategoryDto(finder.findCategoryById(catId));
+        return CategoryMapper.mapToCategoryDto(categoryRepository.findById(catId)
+                .orElseThrow(() -> new DataNotFoundException("Категория с id=" + catId + " не найдена.")));
     }
 }

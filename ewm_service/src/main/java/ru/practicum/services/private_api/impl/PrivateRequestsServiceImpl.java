@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.request.ParticipationRequestDto;
+import ru.practicum.exceptions.DataNotFoundException;
 import ru.practicum.exceptions.WrongConditionException;
-import ru.practicum.helper.Finder;
 import ru.practicum.mappers.RequestMapper;
 import ru.practicum.models.Event;
 import ru.practicum.models.Request;
@@ -14,6 +14,7 @@ import ru.practicum.models.enums.State;
 import ru.practicum.models.enums.Status;
 import ru.practicum.repositories.EventRepository;
 import ru.practicum.repositories.RequestRepository;
+import ru.practicum.repositories.UserRepository;
 import ru.practicum.services.private_api.PrivateRequestsService;
 
 import java.time.LocalDateTime;
@@ -26,11 +27,11 @@ import java.util.stream.Collectors;
 public class PrivateRequestsServiceImpl implements PrivateRequestsService {
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
-    private final Finder finder;
+    private final UserRepository userRepository;
 
     @Override
     public List<ParticipationRequestDto> getRequests(Long requesterId) {
-        finder.findUserById(requesterId);
+        findUserById(requesterId);
 
         List<Request> requests = requestRepository.findAllByRequester_Id(requesterId);
 
@@ -50,7 +51,7 @@ public class PrivateRequestsServiceImpl implements PrivateRequestsService {
             throw new WrongConditionException("нельзя добавить повторный запрос");
         }
 
-        Event event = finder.findEventById(eventId);
+        Event event = findEventById(eventId);
 
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new WrongConditionException("нельзя участвовать в неопубликованном событии");
@@ -63,7 +64,7 @@ public class PrivateRequestsServiceImpl implements PrivateRequestsService {
         if (requesterId.equals(event.getInitiator().getId())) {
             throw new WrongConditionException("инициатор события не может добавить запрос на участие в своём событии");
         }
-        User requester = finder.findUserById(requesterId);
+        User requester = findUserById(requesterId);
 
         Request request = Request.builder()
                 .created(LocalDateTime.now())
@@ -83,9 +84,24 @@ public class PrivateRequestsServiceImpl implements PrivateRequestsService {
 
     @Override
     public ParticipationRequestDto cancelRequest(Long requesterId, Long requestId) {
-        Request request = finder.findRequestById(requestId);
+        Request request = findRequestById(requestId);
 
         request.setStatus(Status.CANCELED);
         return RequestMapper.mapToParticipationRequestDto(requestRepository.save(request));
+    }
+
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("Пользователь с id=" + userId + " не найден."));
+    }
+
+    private Event findEventById(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new DataNotFoundException("Событие с id=" + eventId + " не найдено."));
+    }
+
+    private Request findRequestById(Long requestId) {
+        return requestRepository.findById(requestId)
+                .orElseThrow(() -> new DataNotFoundException("Запрос с id=" + requestId + " не найден."));
     }
 }

@@ -1,18 +1,16 @@
 package ru.practicum.controllers.public_api;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.Constants;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
-import ru.practicum.exceptions.InvalidRequestException;
+import ru.practicum.models.UserEventsParams;
 import ru.practicum.services.public_api.PublicEventsService;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -33,23 +31,19 @@ public class PublicEventsController {
                                              LocalDateTime rangeEnd,
                                          @RequestParam(defaultValue = "false") Boolean onlyAvailable,
                                          @RequestParam(required = false) String sort,
-                                         @RequestParam(defaultValue = "0") Integer from,
-                                         @RequestParam(defaultValue = "10") Integer size,
+                                         @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                         @RequestParam(defaultValue = "10") @Min(1) Integer size,
                                          HttpServletRequest request) {
-        Pageable pageable = PageRequest.of(from / size, size);
-
-        if (sort != null) {
-            if (sort.equals("EVENT_DATE")) {
-                pageable = PageRequest.of(from / size, size, Sort.by("eventDate"));
-            } else if (sort.equals("VIEWS")) {
-                pageable = PageRequest.of(from / size, size, Sort.by("views"));
-            } else {
-                throw new InvalidRequestException("Параметр sort задан неверно");
-            }
-        }
-
-        return publicEventsService.getEvents(text, categories, paid, rangeStart,
-                rangeEnd, onlyAvailable, request, pageable);
+        return publicEventsService.getEvents(UserEventsParams.builder()
+                .text(text)
+                .categories(categories)
+                .paid(paid)
+                .rangeStart(rangeStart)
+                .rangeEnd(rangeEnd)
+                .onlyAvailable(onlyAvailable)
+                .sort(sort)
+                .request(request)
+                .build(), from, size);
     }
 
     @GetMapping("/{id}")

@@ -1,16 +1,16 @@
 package ru.practicum.dto.user;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class NewUserRequest {
     @Size(min = 6, max = 254)
     @Email(message = "некорректный формат email.")

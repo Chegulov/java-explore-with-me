@@ -5,11 +5,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.UpdateEventAdminRequest;
+import ru.practicum.exceptions.DataNotFoundException;
 import ru.practicum.exceptions.InvalidRequestException;
 import ru.practicum.exceptions.WrongConditionException;
-import ru.practicum.helper.Finder;
 import ru.practicum.helper.UtilsUpdateWithoutNull;
 import ru.practicum.mappers.EventMapper;
+import ru.practicum.models.AdminEventsParams;
 import ru.practicum.models.Event;
 import ru.practicum.models.Location;
 import ru.practicum.models.enums.AdminStateAction;
@@ -28,14 +29,16 @@ import java.util.stream.Collectors;
 public class AdminEventsServiceImpl implements AdminEventsService {
     private final EventRepository eventRepository;
     private final LocationRepository locationRepository;
-    private final Finder finder;
 
     @Override
-    public List<EventFullDto> getEvents(List<Long> initiators, List<State> states, List<Long> categories,
-                                        LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable) {
+    public List<EventFullDto> getEvents(AdminEventsParams adminEventsParams,
+                                        Pageable pageable) {
 
-        List<Event> events = eventRepository.getEventsByParameters(initiators, states, categories,
-                rangeStart, rangeEnd, pageable).getContent();
+        List<Event> events = eventRepository.getEventsByParameters(adminEventsParams.getInitiators(),
+                adminEventsParams.getStates(),
+                adminEventsParams.getCategories(),
+                adminEventsParams.getRangeStart(),
+                adminEventsParams.getRangeEnd(), pageable).getContent();
 
         if (events.isEmpty()) {
             return new ArrayList<>();
@@ -47,7 +50,8 @@ public class AdminEventsServiceImpl implements AdminEventsService {
 
     @Override
     public EventFullDto updateEvent(Long eventId, UpdateEventAdminRequest updateEventAdminRequest) {
-        Event eventToUpdate = finder.findEventById(eventId);
+        Event eventToUpdate = eventRepository.findById(eventId)
+                .orElseThrow(() -> new DataNotFoundException("Событие с id=" + eventId + " не найдено."));
         LocalDateTime newEventDate = updateEventAdminRequest.getEventDate();
 
         if (newEventDate != null) {

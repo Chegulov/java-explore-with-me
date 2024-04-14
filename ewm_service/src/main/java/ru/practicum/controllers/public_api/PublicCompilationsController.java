@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.compilation.CompilationDto;
 import ru.practicum.services.public_api.PublicCompilationsService;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -17,8 +18,8 @@ public class PublicCompilationsController {
 
     @GetMapping
     public List<CompilationDto> getCompilations(@RequestParam(required = false) Boolean pinned,
-                                                @RequestParam(defaultValue = "0") Integer from,
-                                                @RequestParam(defaultValue = "10") Integer size) {
+                                                @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                                @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
 
         return publicCompilationsService.getCompilations(pinned, pageable);

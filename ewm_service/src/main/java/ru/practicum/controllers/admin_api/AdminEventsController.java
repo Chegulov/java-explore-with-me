@@ -8,10 +8,12 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.Constants;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.UpdateEventAdminRequest;
+import ru.practicum.models.AdminEventsParams;
 import ru.practicum.models.enums.State;
 import ru.practicum.services.admin_api.AdminEventsService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,11 +33,17 @@ public class AdminEventsController {
                                         @RequestParam(required = false)
                                         @DateTimeFormat(pattern = Constants.pattern)
                                         LocalDateTime rangeEnd,
-                                        @RequestParam(defaultValue = "0") Integer from,
-                                        @RequestParam(defaultValue = "10") Integer size) {
+                                        @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                        @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
 
-        return adminEventsService.getEvents(initiators, states, categories, rangeStart, rangeEnd, pageable);
+        return adminEventsService.getEvents(AdminEventsParams.builder()
+                .initiators(initiators)
+                .states(states)
+                .categories(categories)
+                .rangeStart(rangeStart)
+                .rangeEnd(rangeEnd)
+                .build(), pageable);
     }
 
     @PatchMapping("/{eventId}")

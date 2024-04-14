@@ -10,6 +10,7 @@ import ru.practicum.dto.user.UserDto;
 import ru.practicum.services.admin_api.AdminUsersService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -20,8 +21,8 @@ public class AdminUsersController {
 
     @GetMapping
     public List<UserDto> getUsers(@RequestParam(required = false) List<Long> ids,
-                                  @RequestParam(defaultValue = "0") Integer from,
-                                  @RequestParam(defaultValue = "10") Integer size) {
+                                  @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                  @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
 
         return adminUsersService.getUsers(ids, pageable);

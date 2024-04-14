@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.dto.compilation.CompilationDto;
 import ru.practicum.dto.compilation.NewCompilationDto;
 import ru.practicum.dto.compilation.UpdateCompilationRequest;
-import ru.practicum.helper.Finder;
+import ru.practicum.exceptions.DataNotFoundException;
 import ru.practicum.helper.UtilsUpdateWithoutNull;
 import ru.practicum.mappers.CompilationMapper;
 import ru.practicum.models.Compilation;
@@ -22,7 +22,6 @@ import java.util.List;
 public class AdminCompilationsServiceImpl implements AdminCompilationsService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
-    private final Finder finder;
 
     @Override
     public CompilationDto create(NewCompilationDto newCompilationDto) {
@@ -34,13 +33,13 @@ public class AdminCompilationsServiceImpl implements AdminCompilationsService {
 
     @Override
     public void delete(Long compId) {
-        finder.findCompilationById(compId);
+        findCompilationById(compId);
         compilationRepository.deleteById(compId);
     }
 
     @Override
     public CompilationDto update(Long compId, UpdateCompilationRequest updateCompilationRequest) {
-        Compilation compilationToUpdate = finder.findCompilationById(compId);
+        Compilation compilationToUpdate = findCompilationById(compId);
 
         UtilsUpdateWithoutNull.copyProperties(updateCompilationRequest, compilationToUpdate);
         compilationToUpdate.setEvents(findEvents(updateCompilationRequest.getEvents()));
@@ -56,5 +55,10 @@ public class AdminCompilationsServiceImpl implements AdminCompilationsService {
         }
 
         return events;
+    }
+
+    private Compilation findCompilationById(Long compId) {
+        return compilationRepository.findById(compId)
+                .orElseThrow(() -> new DataNotFoundException("Компиляция с id=" + compId + " не найдена."));
     }
 }

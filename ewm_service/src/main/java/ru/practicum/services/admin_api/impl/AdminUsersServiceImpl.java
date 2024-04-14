@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.user.NewUserRequest;
 import ru.practicum.dto.user.UserDto;
-import ru.practicum.helper.Finder;
+import ru.practicum.exceptions.DataNotFoundException;
 import ru.practicum.mappers.UserMapper;
 import ru.practicum.models.User;
 import ru.practicum.repositories.UserRepository;
@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AdminUsersServiceImpl implements AdminUsersService {
     private final UserRepository userRepository;
-    private final Finder finder;
 
     @Override
     public List<UserDto> getUsers(List<Long> ids, Pageable pageable) {
@@ -47,7 +46,8 @@ public class AdminUsersServiceImpl implements AdminUsersService {
 
     @Override
     public void delete(Long userId) {
-        finder.findUserById(userId);
+        userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("Пользователь с id=" + userId + " не найден."));
         userRepository.deleteById(userId);
     }
 }
