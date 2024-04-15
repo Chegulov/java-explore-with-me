@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.EndpointHit;
 import ru.practicum.ViewStats;
+import ru.practicum.exceptions.InvalidRequestException;
 import ru.practicum.mapper.StatMapper;
 import ru.practicum.repository.StatRepository;
 
@@ -23,6 +24,10 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+        if (start.isAfter(end)) {
+            throw new InvalidRequestException("Некорректно заданы даты");
+        }
+
         List<ViewStats> stats;
         if (uris == null && !unique) {
             stats = statRepository.getAllStats(start, end);

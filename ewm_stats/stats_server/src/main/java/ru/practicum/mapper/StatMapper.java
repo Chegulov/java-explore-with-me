@@ -1,15 +1,14 @@
 package ru.practicum.mapper;
 
 import lombok.experimental.UtilityClass;
+import ru.practicum.Constants;
 import ru.practicum.EndpointHit;
-import ru.practicum.model.Stat;
+import ru.practicum.models.Stat;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @UtilityClass
 public class StatMapper {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public Stat mapToStat(EndpointHit endpointHit) {
         return Stat.builder()
@@ -17,7 +16,7 @@ public class StatMapper {
                 .app(endpointHit.getApp())
                 .ip(endpointHit.getIp())
                 .uri(endpointHit.getUri())
-                .timestamp(LocalDateTime.parse(endpointHit.getTimestamp(), formatter))
+                .timestamp(LocalDateTime.parse(endpointHit.getTimestamp(), Constants.FORMATTER))
                 .build();
     }
 

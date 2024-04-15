@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.ViewStats;
-import ru.practicum.model.Stat;
+import ru.practicum.models.Stat;
 
 import java.time.LocalDateTime;
 import java.util.List;
