@@ -5,13 +5,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.models.enums.Status;
+import ru.practicum.models.enums.CommentState;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -21,29 +20,36 @@ import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "requests")
+@Table(name = "comments")
 @Builder
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class Request {
+@NoArgsConstructor
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private LocalDateTime created;
+    private String text;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Column(nullable = false)
+    private LocalDateTime created_on;
+
+    private LocalDateTime updated_on;
+
+    private LocalDateTime published_on;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id", referencedColumnName = "id", nullable = false)
+    private User author;
+
+    @ManyToOne
     @JoinColumn(name = "event_id", referencedColumnName = "id", nullable = false)
     private Event event;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "requester_id", referencedColumnName = "id", nullable = false)
-    private User requester;
-
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private CommentState state;
 }

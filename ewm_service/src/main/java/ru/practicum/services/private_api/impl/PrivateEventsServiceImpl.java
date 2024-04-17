@@ -16,11 +16,19 @@ import ru.practicum.exceptions.WrongConditionException;
 import ru.practicum.helper.UtilsUpdateWithoutNull;
 import ru.practicum.mappers.EventMapper;
 import ru.practicum.mappers.RequestMapper;
-import ru.practicum.models.*;
+import ru.practicum.models.Category;
+import ru.practicum.models.Event;
+import ru.practicum.models.Location;
+import ru.practicum.models.Request;
+import ru.practicum.models.User;
 import ru.practicum.models.enums.State;
 import ru.practicum.models.enums.Status;
 import ru.practicum.models.enums.UserStateAction;
-import ru.practicum.repositories.*;
+import ru.practicum.repositories.CategoryRepository;
+import ru.practicum.repositories.EventRepository;
+import ru.practicum.repositories.LocationRepository;
+import ru.practicum.repositories.RequestRepository;
+import ru.practicum.repositories.UserRepository;
 import ru.practicum.services.private_api.PrivateEventsService;
 
 import java.time.LocalDateTime;
@@ -73,13 +81,13 @@ public class PrivateEventsServiceImpl implements PrivateEventsService {
             checkDate(newEventDate);
         }
 
-        if (eventToUpdate.getState().equals(State.PUBLISHED)) {
+        if (eventToUpdate.getState() == State.PUBLISHED) {
             throw new WrongConditionException("изменить можно только отмененные "
                     + "события или события в состоянии ожидания модерации");
         }
 
         if (updateEventUserRequest.getStateAction() != null) {
-            if (updateEventUserRequest.getStateAction().equals(UserStateAction.CANCEL_REVIEW)) {
+            if (updateEventUserRequest.getStateAction() == UserStateAction.CANCEL_REVIEW) {
                 eventToUpdate.setState(State.CANCELED);
             } else {
                 eventToUpdate.setState(State.PENDING);
