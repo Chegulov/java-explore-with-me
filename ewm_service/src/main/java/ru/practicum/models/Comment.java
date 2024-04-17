@@ -11,6 +11,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,17 +36,17 @@ public class Comment {
     private String text;
 
     @Column(nullable = false)
-    private LocalDateTime created_on;
+    private LocalDateTime createdOn;
 
-    private LocalDateTime updated_on;
+    private LocalDateTime updatedOn;
 
-    private LocalDateTime published_on;
+    private LocalDateTime publishedOn;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id", referencedColumnName = "id", nullable = false)
     private User author;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "event_id", referencedColumnName = "id", nullable = false)
     private Event event;
 

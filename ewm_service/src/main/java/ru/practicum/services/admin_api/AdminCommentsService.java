@@ -5,4 +5,6 @@ import ru.practicum.dto.comment.CommentUpdateRequest;
 
 public interface AdminCommentsService {
     CommentDto updateState(Long commentId, CommentUpdateRequest commentUpdateRequest);
+
+    void delete(Long commentId);
 }

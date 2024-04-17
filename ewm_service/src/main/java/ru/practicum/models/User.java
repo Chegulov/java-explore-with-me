@@ -1,5 +1,6 @@
 package ru.practicum.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,7 @@ import javax.persistence.Table;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

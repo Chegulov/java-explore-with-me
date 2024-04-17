@@ -19,9 +19,9 @@ import java.time.LocalDateTime;
 public class CommentDto {
     private Long id;
     private String text;
-    private LocalDateTime created_on;
-    private LocalDateTime updated_on;
-    private LocalDateTime published_on;
+    private LocalDateTime createdOn;
+    private LocalDateTime updatedOn;
+    private LocalDateTime publishedOn;
     private User author;
     private Event event;
     private CommentState state;

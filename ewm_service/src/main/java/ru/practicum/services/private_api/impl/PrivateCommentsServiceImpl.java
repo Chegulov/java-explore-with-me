@@ -59,7 +59,7 @@ public class PrivateCommentsServiceImpl implements PrivateCommentsService {
 
         UtilsUpdateWithoutNull.copyProperties(newCommentDto, commentToUpdate);
         commentToUpdate.setState(CommentState.PENDING);
-        commentToUpdate.setUpdated_on(LocalDateTime.now());
+        commentToUpdate.setUpdatedOn(LocalDateTime.now());
 
         return CommentMapper.mapToCommentDto(commentRepository.save(commentToUpdate));
     }
@@ -82,7 +82,7 @@ public class PrivateCommentsServiceImpl implements PrivateCommentsService {
         findUserById(userId);
         List<Comment> comments = commentRepository.findByAuthorId(userId, pageable);
 
-        if(comments.isEmpty()) {
+        if (comments.isEmpty()) {
             return new ArrayList<>();
         }
 

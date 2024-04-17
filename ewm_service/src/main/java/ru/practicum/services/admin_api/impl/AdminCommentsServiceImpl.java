@@ -26,10 +26,17 @@ public class AdminCommentsServiceImpl implements AdminCommentsService {
 
         if (commentUpdateRequest.getStateAction() == CommentAdminStateAction.PUBLISH_COMMENT) {
             comment.setState(CommentState.PUBLISHED);
-            comment.setPublished_on(LocalDateTime.now());
+            comment.setPublishedOn(LocalDateTime.now());
         } else {
             comment.setState(CommentState.CANCELED);
         }
         return CommentMapper.mapToCommentDto(commentRepository.save(comment));
+    }
+
+    @Override
+    public void delete(Long commentId) {
+        commentRepository.findById(commentId)
+                .orElseThrow(() -> new DataNotFoundException("Комментарий с id=" + commentId + " не найден."));
+        commentRepository.deleteById(commentId);
     }
 }
